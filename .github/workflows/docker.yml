@@ -135,14 +135,14 @@ jobs:
             BUILD_SOURCE_COMMIT=${{ github.sha }}
 
       - name: Extract geodata
-        if: ${{ gitub.event_name == 'release' && matrix.image == 'immich-server' }}
+        if: ${{ github.event_name == 'release' && matrix.image == 'immich-server' }}
         run: |
           id="$(docker create ghcr.io/${{ github.repository_owner }}/${ matrix.image }}:${{ github.ref_name }})"
           docker cp "$id":/usr/bin/resources geodata
           zip -r geodata.zip geodata
 
       - name: Upload geodata as release asset
-        if: ${{ gitub.event_name == 'release' && matrix.image == 'immich-server' }}
+        if: ${{ github.event_name == 'release' && matrix.image == 'immich-server' }}
         uses: softprops/action-gh-release@v2
         permissions:
           contents: write
