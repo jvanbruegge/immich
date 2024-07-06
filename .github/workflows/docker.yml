@@ -119,6 +119,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
+          load: ${{ github.even_name == 'release' }}
           platforms: ${{ matrix.platforms }}
           # Skip pushing when PR from a fork
           push: ${{ !github.event.pull_request.head.repo.fork }}
@@ -132,3 +133,18 @@ jobs:
             BUILD_IMAGE=${{ github.event_name == 'release' && github.ref_name || steps.metadata.outputs.tags }}
             BUILD_SOURCE_REF=${{ github.ref_name }}
             BUILD_SOURCE_COMMIT=${{ github.sha }}
+
+      - name: Extract geodata
+        if: ${{ gitub.event_name == 'release' && matrix.image == 'immich-server' }}
+        run: |
+          id="$(docker create ghcr.io/${{ github.repository_owner }}/${ matrix.image }}:${{ github.ref_name }})"
+          docker cp "$id":/usr/bin/resources geodata
+          zip -r geodata.zip geodata
+
+      - name: Upload geodata as release asset
+        if: ${{ gitub.event_name == 'release' && matrix.image == 'immich-server' }}
+        uses: softprops/action-gh-release@v2
+        permissions:
+          contents: write
+        with:
+          files: geodata.zip
