@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  contents: write
   packages: write
 
 jobs:
@@ -144,7 +145,5 @@ jobs:
       - name: Upload geodata as release asset
         if: ${{ github.event_name == 'release' && matrix.image == 'immich-server' }}
         uses: softprops/action-gh-release@v2
-        permissions:
-          contents: write
         with:
           files: geodata.zip
